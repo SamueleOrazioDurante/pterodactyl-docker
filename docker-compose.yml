@@ -1,0 +1,59 @@
+services:
+  database:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    volumes:
+      - ./database:/var/lib/mysql
+  cache:
+    image: redis
+    restart: always
+  pterodactyl_panel:
+    image: yoshiwalsh/pterodactyl-panel:v1.11.10
+    restart: always
+    depends_on:
+      - database
+    volumes:
+      - ./panel:/var/www/html/
+    environment:
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: cache
+      TIMEZONE: ${TIMEZONE}
+  nginx:
+    image: yoshiwalsh/nginx-for-php-fpm
+    restart: always
+    depends_on:
+      - pterodactyl_panel
+    ports:
+      - 5080:80
+    volumes:
+      - ./panel/public:/var/www/html/ # This points to /var/www/html/public of the pterodactyl_panel container
+  pterodactyl_wings:
+    image: ghcr.io/pterodactyl/wings:latest
+    container_name: pterodactyl_wings
+    networks:
+      - pterodactyl_network
+    ports:
+      - "8080:8080"
+      - "2022:2022"
+      # Add any other ports you need here for game servers
+    depends_on:
+      - pterodactyl_panel
+    environment:
+      - TZ=${TIMEZONE}
+      - WINGS_PTERO_PANEL=${PANEL_URL}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./wings:/etc/pterodactyl
+    restart: unless-stopped
+
+networks:
+  pterodactyl_network:
