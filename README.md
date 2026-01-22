@@ -65,4 +65,4 @@ Restart Wings
 Notes
 - Only forward ports for game servers when required; never forward Panel or Wings control ports to the public internet.
 - This README is intended for local network deployments only.
-
+- If Wings reports that it cannot create the network "pterodactyl0", try creating it manually on Docker with the same name using the command `docker network create pterodactyl0`. If that does not work, try creating a network named "pterodactyl_nw" with `docker network create pterodactyl_nw`.
