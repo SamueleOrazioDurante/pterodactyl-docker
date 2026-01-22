@@ -54,10 +54,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - panel_wings:/etc/pterodactyl
+      - panel_servers:/var/lib/pterodactyl/volumes
     restart: unless-stopped
 
 volumes:
   panel_wings:
+  panel_servers:
   panel_data:
   panel_public:
   panel_db:
