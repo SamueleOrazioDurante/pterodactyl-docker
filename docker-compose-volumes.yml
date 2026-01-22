@@ -12,7 +12,7 @@ services:
   cache:
     image: redis
     restart: always
-  pterodactyl_panel:
+  php-fpm: # panel, do not change name
     image: yoshiwalsh/pterodactyl-panel:v1.11.10
     restart: always
     depends_on:
@@ -32,7 +32,7 @@ services:
     image: yoshiwalsh/nginx-for-php-fpm
     restart: always
     depends_on:
-      - pterodactyl_panel
+      - php-fpm
     ports:
       - 80:80
     volumes:
@@ -47,7 +47,7 @@ services:
       - "2022:2022"
       # Add any other ports you need here for game servers
     depends_on:
-      - pterodactyl_panel
+      - php-fpm
     environment:
       - TZ=${TIMEZONE}
       - WINGS_PTERO_PANEL=${PANEL_URL}
